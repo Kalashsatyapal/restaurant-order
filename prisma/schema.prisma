@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model DishCategory {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  dishes      Dish[]
+}
+
+model Dish {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float
+  image       String
+  categoryId  String
+  category    DishCategory @relation(fields: [categoryId], references: [id])
+  // Add this line for the reverse relation
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  total     Float
+  status    String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  quantity Int
+  price    Float
+  dishId   String
+  orderId  String
+  dish     Dish   @relation(fields: [dishId], references: [id])
+  order    Order  @relation(fields: [orderId], references: [id])
+}
